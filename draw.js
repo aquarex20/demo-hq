@@ -43,11 +43,16 @@ let lastAdd = 0;
 const ADD_EVERY_MS = 16; // ~60fps
 const MIN_DIST_PX = 3;   // ignore tiny jitter
 
-const lassoBtn = document.getElementById("lassoBtn");
+const freehandBtn = document.getElementById("freehandBtn");
+const polygonBtn = document.getElementById("polygonBtn");
 
+function clearToolsUI() {
+    freehandBtn.classList.remove("active");
+    polygonBtn.classList.remove("active");
+  }
+  
 function setLasso(on) {
   lassoOn = on;
-  lassoBtn.textContent = `Lasso: ${on ? "ON" : "OFF"}`;
 
   if (!on) {
     // cleanup any in-progress drawing
@@ -59,9 +64,28 @@ function setLasso(on) {
     }
     map.dragging.enable();
   }
+
 }
 
-lassoBtn.addEventListener("click", () => setLasso(!lassoOn));
+function disablePolygonMode() {
+    map.pm.disableDraw();
+    map.pm.disableEdit();
+    map.pm.disableRemove();
+  }
+  
+freehandBtn.addEventListener("click", () => {
+  if (freehandBtn.classList.contains("active")) {
+    clearToolsUI();
+    freehandBtn.classList.remove("active");
+    setLasso(false);
+    return;
+  }
+  clearToolsUI();
+  freehandBtn.classList.add("active");
+  setLasso(true);
+  disablePolygonMode();
+});
+
 
 function addPoint(latlng) {
   // avoid adding points that are too close in screen space
@@ -172,10 +196,10 @@ refreshAllCellColors(); // ✅ THIS updates every cell instantly
 });
 
 // -----------------------
-// Leaflet.FreeDraw (Wildhoney) integration
+// Polygon integration
 // -----------------------
-// Start freehand lasso on click
-document.getElementById("lassoBtn1").addEventListener("click", () => {
+// Start polygon on click
+function enablePolygonMode() {
   // Disable map drag while drawing so it doesn't pan
   map.dragging.disable();
 
@@ -186,6 +210,19 @@ document.getElementById("lassoBtn1").addEventListener("click", () => {
     freehandOptions: { smoothFactor: 0.3 },
     pathOptions: { fillOpacity: 0.2 }
   });
+}
+
+polygonBtn.addEventListener("click", () => {
+  if (polygonBtn.classList.contains("active")) {
+    clearToolsUI();
+    polygonBtn.classList.remove("active");
+    disablePolygonMode();
+    return;
+  }
+  clearToolsUI();
+  polygonBtn.classList.add("active");
+  setLasso(false);
+  enablePolygonMode();
 });
 
 // Re-enable dragging when drawing ends

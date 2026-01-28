@@ -49,6 +49,48 @@
         box-shadow:0 2px 10px rgba(0,0,0,.2);
         width:240px;
     }
+    #drawToolbar {
+        position: absolute;
+        left: 8px;
+        top: 90px;
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tool-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.08s ease;
+    }
+
+    .tool-btn:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transform: translateY(-1px);
+    }
+
+    .tool-btn.active {
+    background: #1f6fff;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(31,111,255,0.45);
+    }
+
+    .tool-btn:active {
+    transform: translateY(0);
+    }
 
 
   </style>
@@ -75,21 +117,15 @@
   <div>ΔT: <span id="tempDelta">0</span> °C</div>
   <button id="applyTemp" style="margin-top:8px; width:100%;">Apply</button>
 </div>
-<button id="lassoBtn1" style="
-  position:absolute; left:10px; top:300px; z-index:3000;
-  background:#fff; padding:8px 10px; border-radius:8px;
-  border:1px solid #ddd; box-shadow:0 2px 10px rgba(0,0,0,.15);
-">
-  Lasso (freehand)
-</button>
-<button id="lassoBtn" style="
-  position:absolute; left:10px; top:70px; z-index:3000;
-  background:#fff; padding:8px 10px; border-radius:8px;
-  border:1px solid #ddd; box-shadow:0 2px 10px rgba(0,0,0,.15);
-">
-  Lasso: OFF
-</button>
 
+<div id="drawToolbar">
+    <button id="freehandBtn" class="tool-btn" title="Freehand lasso">
+      ✍️
+    </button>
+    <button id="polygonBtn" class="tool-btn" title="Polygon select">
+      ⬠
+    </button>
+  </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
