@@ -15,7 +15,7 @@
       // -------------------------
       // Grid + temps (5° x 5° here)
       // -------------------------
-      const dLat = 5, dLon = 5;
+      const dLat = 2, dLon = 2;
       const Nlat = 180 / dLat; // 36
       const Nlon = 360 / dLon; // 72
   
