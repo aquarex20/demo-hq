@@ -192,7 +192,7 @@ for (const { i, j } of selectedCells) temps[i][j] += dT;
 slider.value = "0";
 deltaLabel.textContent = "0";
 
-refreshAllCellColors(); // ✅ THIS updates every cell instantly
+    window.refreshTemps();
 });
 
 // -----------------------

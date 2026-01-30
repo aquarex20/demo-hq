@@ -91,6 +91,21 @@
     .tool-btn:active {
     transform: translateY(0);
     }
+    .country-label{
+  font-size: 12px;
+  font-weight: 650;
+  color: rgba(20,20,20,0.95);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.95), 0 2px 6px rgba(255,255,255,0.85);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+/* make div-icons NOT be a tiny square */
+.leaflet-marker-icon.country-label {
+  background: transparent !important;
+  border: none !important;
+}
+
 
 
   </style>
@@ -130,12 +145,18 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@latest/dist/leaflet-geoman.js"></script>
+<script> 
+    // IMPORTANT: create map BEFORE loading other scripts
+    window.map = L.map("map", { worldCopyJump: true }).setView([0, 0], 2);
 
+
+  </script>
 <!-- your code -->
+ <script src="map.js"></script>
 <script src="temp.js"></script>
 
 
-    <script src="draw.js"></script>
+<script src="draw.js"></script>
       
         
 </body>
