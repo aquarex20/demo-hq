@@ -1,8 +1,10 @@
+if (!window.map) throw new Error("Map not initialized yet");
+
 // -----------------------
 // Existing Leaflet.draw (you can keep it)
 // -----------------------
 const drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
+window.map.addLayer(drawnItems);
 
 // -----------------------
 // Selection helpers
@@ -59,18 +61,18 @@ function setLasso(on) {
     drawing = false;
     lassoPoints = [];
     if (lassoLayer) {
-      map.removeLayer(lassoLayer);
+      window.map.removeLayer(lassoLayer);
       lassoLayer = null;
     }
-    map.dragging.enable();
+    window.map.dragging.enable();
   }
 
 }
 
 function disablePolygonMode() {
-    map.pm.disableDraw();
-    map.pm.disableEdit();
-    map.pm.disableRemove();
+    window.map.pm.disableDraw();
+    window.map.pm.disableEdit();
+    window.map.pm.disableRemove();
   }
   
 freehandBtn.addEventListener("click", () => {
@@ -91,8 +93,8 @@ function addPoint(latlng) {
   // avoid adding points that are too close in screen space
   if (lassoPoints.length) {
     const prev = lassoPoints[lassoPoints.length - 1];
-    const a = map.latLngToContainerPoint(prev);
-    const b = map.latLngToContainerPoint(latlng);
+    const a = window.map.latLngToContainerPoint(prev);
+    const b = window.map.latLngToContainerPoint(latlng);
     if (a.distanceTo(b) < MIN_DIST_PX) return;
   }
   lassoPoints.push(latlng);
@@ -104,28 +106,28 @@ function addPoint(latlng) {
       color: "#111",
       fill: true,
       fillOpacity: 0.12
-    }).addTo(map);
+    }).addTo(window.map);
   } else {
     lassoLayer.setLatLngs(lassoPoints);
   }
 }
 
 // Start drawing on map mousedown
-map.on("mousedown", (e) => {
+window.map.on("mousedown", (e) => {
   if (!lassoOn) return;
   drawing = true;
   lassoPoints = [];
   lastAdd = 0;
 
   // stop the map from panning while drawing
-  map.dragging.disable();
+  window.map.dragging.disable();
 
   // start with the first point
   addPoint(e.latlng);
 });
 
 // Collect points while moving
-map.on("mousemove", (e) => {
+window.map.on("mousemove", (e) => {
   if (!lassoOn || !drawing) return;
 
   const now = performance.now();
@@ -136,20 +138,20 @@ map.on("mousemove", (e) => {
 });
 
 // Finish on mouseup
-map.on("mouseup", () => {
+window.map.on("mouseup", () => {
   if (!lassoOn || !drawing) return;
   drawing = false;
 
   if (!lassoPoints || lassoPoints.length < 3) {
-    map.dragging.enable();
+    window.map.dragging.enable();
     return;
   }
 
   // Optional: simplify the lasso to reduce points (prevents freezing later)
   // Leaflet expects array of Points for simplify
-  const pts = lassoPoints.map(ll => map.latLngToLayerPoint(ll));
+  const pts = lassoPoints.map(ll => window.map.latLngToLayerPoint(ll));
   const simplified = L.LineUtil.simplify(pts, 2); // tolerance in pixels
-  lassoPoints = simplified.map(p => map.layerPointToLatLng(p));
+  lassoPoints = simplified.map(p => window.map.layerPointToLatLng(p));
 
   // Update the displayed layer with simplified points and close it nicely
   if (lassoLayer) lassoLayer.setLatLngs(lassoPoints);
@@ -158,15 +160,15 @@ map.on("mouseup", () => {
   selectedCells = getSelectedCells(lassoPoints);
 
   panel.style.display = "block";
-  panel.querySelector("div").textContent = `Adjust ${selectedCells.length} selected cells`;
+  cellsLabel.textContent = `${selectedCells.length} cell${selectedCells.length !== 1 ? 's' : ''} selected`;
 
   // re-enable map panning after finishing
-  map.dragging.enable();
+  window.map.dragging.enable();
 });
 
 // Safety: if mouse leaves window while drawing
 window.addEventListener("mouseup", () => {
-  if (lassoOn && drawing) map.fire("mouseup");
+  if (lassoOn && drawing) window.map.fire("mouseup");
 });
 
 // -----------------------
@@ -178,19 +180,29 @@ const panel = document.getElementById("tempPanel");
 const slider = document.getElementById("tempSlider");
 const deltaLabel = document.getElementById("tempDelta");
 const applyBtn = document.getElementById("applyTemp");
-const panelTitle = panel.querySelector("div");
+const cellsLabel = document.getElementById("tempPanelCells");
 
 slider.addEventListener("input", () => {
-  deltaLabel.textContent = slider.value;
+  const value = parseFloat(slider.value);
+  deltaLabel.textContent = value > 0 ? `+${value}` : value;
+  
+  // Color coding for positive/negative values
+  deltaLabel.classList.remove("positive", "negative");
+  if (value > 0) {
+    deltaLabel.classList.add("positive");
+  } else if (value < 0) {
+    deltaLabel.classList.add("negative");
+  }
 });
 
 applyBtn.addEventListener("click", () => {
     const dT = parseFloat(slider.value);
 
-for (const { i, j } of selectedCells) temps[i][j] += dT;
+    for (const { i, j } of selectedCells) temps[i][j] += dT;
 
-slider.value = "0";
-deltaLabel.textContent = "0";
+    slider.value = "0";
+    deltaLabel.textContent = "0";
+    deltaLabel.classList.remove("positive", "negative");
 
     window.refreshTemps();
 });
@@ -201,9 +213,9 @@ deltaLabel.textContent = "0";
 // Start polygon on click
 function enablePolygonMode() {
   // Disable map drag while drawing so it doesn't pan
-  map.dragging.disable();
+  window.map.dragging.disable();
 
-  map.pm.enableDraw("Polygon", {
+  window.map.pm.enableDraw("Polygon", {
     snappable: false,
     // THIS enables freehand drawing in Geoman
     freehand: true,
@@ -226,12 +238,12 @@ polygonBtn.addEventListener("click", () => {
 });
 
 // Re-enable dragging when drawing ends
-map.on("pm:drawend", () => {
-  map.dragging.enable();
+window.map.on("pm:drawend", () => {
+  window.map.dragging.enable();
 });
 
 // When the lasso is finished
-map.on("pm:create", (e) => {
+window.map.on("pm:create", (e) => {
 
   if (e.shape !== "Polygon") return;
 
@@ -239,6 +251,6 @@ map.on("pm:create", (e) => {
   selectedCells = getSelectedCells(poly);
 
   panel.style.display = "block";
-  panel.querySelector("div").textContent = `Adjust ${selectedCells.length} selected cells`;
+  cellsLabel.textContent = `${selectedCells.length} cell${selectedCells.length !== 1 ? 's' : ''} selected`;
 });
 

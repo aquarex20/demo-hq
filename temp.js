@@ -1,3 +1,4 @@
+
 // -------------------------
 // Grid + temps (2° x 2°)
 // -------------------------
@@ -169,4 +170,5 @@ window.Nlat = Nlat;
 window.Nlon = Nlon;
 window.refreshTemps = refreshTemps;
 window.tempToColor = tempToColor;
+window.tempLayer = tempLayer;
 
